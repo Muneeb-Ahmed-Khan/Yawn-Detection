@@ -8,10 +8,6 @@ import os
 import imutils
 import dlib
 import cv2
-import matplotlib.pyplot as plt
-
-
-
 
 
 # construct the argument parser and parse the arguments
@@ -54,6 +50,7 @@ for (i, image) in enumerate(images_noYawn):
         # to show the mouth properly pad both sides
         pad = 1
         crop_image = image[miny - pad: maxy + pad, minx - pad: maxx + pad]
+        
         # cv2.imshow('mouth',crop_image)
         # cv2.waitKey(0)
         # cv2.destroyAllWindows()
