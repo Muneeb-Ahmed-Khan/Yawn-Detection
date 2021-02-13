@@ -14,7 +14,10 @@ from keras.models import load_model
 ap = argparse.ArgumentParser()
 ap.add_argument("-p", "--shape-predictor", help="path to facial landmark predictor", default="shape_predictor_68_face_landmarks.dat")
 ap.add_argument("-m", "--model", help="h5 Model", default="model/yawnModel.hdf5")
+ap.add_argument("-v", "--video", help="Testing Video Path", default="videos/1.avi")
 args = vars(ap.parse_args())
+
+
 
 if os.path.isfile(args["shape_predictor"]):
 	pass
@@ -25,15 +28,19 @@ else:
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(args["shape_predictor"])
 
+yawns = 0
+yawn_status = False
+
 
 model = load_model(args["model"])
-
-cap = cv2.VideoCapture("videos/3.avi")
+cap = cv2.VideoCapture(args["video"])
 
 while(True):
     # Capture frame-by-frame
     ret, frame = cap.read()
 
+    if not ret:
+        break
     # Our operations on the frame come here
     image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     orig = image
@@ -64,15 +71,16 @@ while(True):
         # determine the probabilities of both "smiling" and "not similing"
         # then set the label accordingly
         (notSmiling, smiling) = model.predict(roi)[0]
-        label = "yawn" if smiling > notSmiling else "no-yawn"
+        label = "Yawning" if smiling > notSmiling else "Normal"
 
-        print(label)
+        # show the Result
+        cv2.putText(frame, label, (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
 
-        # Display the resulting frame
-        cv2.imshow('frame',crop_image)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+    # Display the resulting frame
+    cv2.imshow('frame',frame)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
 
 # When everything done, release the capture
 cap.release()
