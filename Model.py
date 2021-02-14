@@ -18,6 +18,8 @@ class CNN:
         if K.image_data_format() == "channel_first":
             inputShape = (depth, height, width)
 
+        #(28, 28, 3) -> Keras -> Tensorflow Backend. By default, we are using this backend.
+
         # first set of CONV => RELU => POOL layers
         model.add(Conv2D(20, (5, 5), padding = "same"))
         model.add(Activation("relu"))

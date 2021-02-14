@@ -18,6 +18,8 @@ data = []
 labels = []
 
 
+#[ 'dataset/yawn/1.jpg', 'dataset/yawn/2.jpg', 'dataset/no-yawn/1.jpg', 'dataset/yawn/1.jpg']
+
 ap = argparse.ArgumentParser()
 ap.add_argument("-d", "--dataset", help="path to dataset", default="dataset")
 ap.add_argument("-m", "--model", help="hdf5 Model", default="model/yawnModel.hdf5")
@@ -30,12 +32,11 @@ for imagePath in sorted(list(paths.list_images(args["dataset"]))):
     label = imagePath.split(os.path.sep)[-2]
     # load the image, pre-process it, and store it in the data list
     image = cv2.imread(imagePath)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    #image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     dim = (28, 28)
     image = cv2.resize(image, dim, interpolation = cv2.INTER_AREA)
 
-    #image = imutils.resize(image, width = 28, height=28)
-    print(image.shape)
+    # print(image.shape)
     image = img_to_array(image)
     data.append(image)
 
@@ -45,16 +46,12 @@ for imagePath in sorted(list(paths.list_images(args["dataset"]))):
     labels.append(label)
 
 # scale the raw pixel intensities to the range [0, 1]
-data = np.array(data, dtype = "float") / 255.0
+data = np.array(data, dtype = "float")# / 255.0
 labels = np.array(labels)
 
 # convert the labels from integers to vectors
 le = LabelEncoder().fit(labels)
 labels = np_utils.to_categorical(le.transform(labels), 2)
-
-# account for skew in the labeled data
-classTotals = labels.sum(axis = 0)
-classWeight = classTotals.max() / classTotals
 
 # partition the data into training and testing splits using 80% of the data
 # for training and remaining 20% for testing
@@ -62,7 +59,7 @@ classWeight = classTotals.max() / classTotals
 
 # initialize the model
 print("[INFO] compiling model...")
-model = CNN.build(width = 28, height = 28, depth = 1, classes = 2)
+model = CNN.build(width = 28, height = 28, depth = 3, classes = 2)
 model.compile(loss = "binary_crossentropy", optimizer = "adam", metrics = ["accuracy"])
 
 # train the network
